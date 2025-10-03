@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 
 class BottomNavBar extends StatefulWidget {
   final List<Widget> pages;
+  final Function(int)? onPageChanged;
 
   const BottomNavBar({
-    Key? key,
+    super.key,
     required this.pages,
-  }) : super(key: key);
+    required this.onPageChanged,
+  });
 
   @override
   State<BottomNavBar> createState() => _BottomNavBarState();
@@ -33,6 +35,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
                 _showCreateDialog(context);
               } else {
                 _selectedIndex = index;
+                widget.onPageChanged?.call(index);
               }
             });
           },
