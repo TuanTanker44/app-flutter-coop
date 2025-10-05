@@ -13,6 +13,9 @@ class _LibraryPageState extends State<LibraryPage> {
 
   // State quản lý danh sách (sau này có thể fetch từ API)
   List<String> playlists = List.generate(10, (i) => "Playlist ${i + 1}");
+  List<String> dsnghsi = List.generate(10, (i) => "Nghe si ${i + 1}");
+  List<String> dsalbum = List.generate(10, (i) => "Album ${i + 1}");
+
 
   void _onFilterSelected(String filter) {
     setState(() {
@@ -26,42 +29,112 @@ class _LibraryPageState extends State<LibraryPage> {
     });
   }
 
+  void _addNgheSi(){
+    setState(() {
+      
+    });
+  }
+
+  void _addAlbum(){
+    setState(() {
+      
+    });
+  }
+
+// ham hien thi lua chon them playlist nghe si hoac album
+  void _showAddOptions() {
+  showModalBottomSheet(
+    context: context,
+    backgroundColor: const Color(0xFF1E1E1E), // nền tối
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+    ),
+    builder: (context) {
+      return Wrap(
+        children: [
+          ListTile(
+            leading: const Icon(Icons.playlist_add, color: Colors.white),
+            title: const Text("Thêm Playlist", style: TextStyle(color: Colors.white)),
+            onTap: () {
+              Navigator.pop(context);
+              _addPlaylist();
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.person_add, color: Colors.white),
+            title: const Text("Thêm Nghệ sĩ", style: TextStyle(color: Colors.white)),
+            onTap: () {
+              Navigator.pop(context);
+              // TODO: viết hàm thêm nghệ sĩ
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.album, color: Colors.white),
+            title: const Text("Thêm Album", style: TextStyle(color: Colors.white)),
+            onTap: () {
+              Navigator.pop(context);
+              // TODO: viết hàm thêm album
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
+
+String _hienThiTheoDanhMuc(String _selectedFilter, int index){
+  if(_selectedFilter == "Playlist"){
+    return playlists[index];
+  }else if(_selectedFilter == "Nghệ sĩ"){
+    return dsnghsi[index];
+  }else if (_selectedFilter == "Album"){
+    return dsalbum[index];
+  }else{
+    return "khong co ds";
+  }
+}
+
+
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Header
-            Container(
-              padding: EdgeInsets.only(left: 55),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Thư viện',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Row(
                   children: [
-                    const Text(
-                      'Thư viện',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    IconButton(
+                      icon: const Icon(Icons.search, color: Colors.white),
+                      onPressed: () {
+                        Navigator.push(
+                          context, 
+                          MaterialPageRoute(
+                            builder: (context) => SearchPagelib(selectedFilter: _selectedFilter),)
+                        );
+                      },
                     ),
-                    Row(
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.search, color: Colors.white),
-                          onPressed: () {},
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.add, color: Colors.white),
-                          onPressed: _addPlaylist,
-                        ),
-                      ],
+                    IconButton(
+                      icon: const Icon(Icons.add, color: Colors.white),
+                      onPressed: _showAddOptions
                     ),
                   ],
-                )
+                ),
+              ],
             ),
             const SizedBox(height: 16),
 
@@ -112,13 +185,19 @@ class _LibraryPageState extends State<LibraryPage> {
                       child: const Icon(Icons.music_note, color: Colors.white),
                     ),
                     title: Text(
-                      playlists[index],
+                      _hienThiTheoDanhMuc(_selectedFilter, index),
                       style: const TextStyle(color: Colors.white),
                     ),
                     subtitle: Text(
                       '$_selectedFilter • 20 bài hát',
                       style: TextStyle(color: Colors.grey[600]),
                     ),
+                    onTap: (){
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => PlaylistDetailPage(),)
+                      );
+                    },
                   );
                 },
               ),
@@ -127,5 +206,57 @@ class _LibraryPageState extends State<LibraryPage> {
         ),
       ),
     );
+  }
+}
+
+
+class SearchPagelib extends StatefulWidget {
+  final String selectedFilter;
+  const SearchPagelib({super.key, required this.selectedFilter});
+
+  @override
+  State<SearchPagelib> createState() => _SearchPagelibState();
+}
+
+class _SearchPagelibState extends State<SearchPagelib> {
+  String _searchText = "";
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: TextField(
+          autofocus: true,
+          style: const TextStyle(color: Colors.white),
+          decoration: InputDecoration(
+            hintText: "Tìm kiếm trong ${widget.selectedFilter}",
+            hintStyle: TextStyle(color: Colors.grey[500]),
+            border: InputBorder.none,
+          ),
+          onChanged: (value){
+            setState(() {
+              _searchText = value;
+            });
+          },
+        ),
+      ),
+      body: Center(
+        child: Text(
+          _searchText.isEmpty
+        ? "nhap de tim trong ${widget.selectedFilter}"
+        : "ket qua cho $_searchText",
+        style: const TextStyle(color: Colors.white, fontSize: 18),
+        ),
+      ),
+    );
+  }
+}
+
+
+class PlaylistDetailPage extends StatelessWidget {
+  const PlaylistDetailPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Placeholder();
   }
 }
