@@ -1,5 +1,17 @@
 import 'package:flutter/material.dart';
 
+class MusicItem {
+  final String title;
+  final String subtitle;
+  final String imageUrl;
+
+  MusicItem({
+    required this.imageUrl,
+    required this.subtitle,
+    required this.title
+  });
+}
+
 class LibraryPage extends StatefulWidget {
   const LibraryPage({super.key});
 
@@ -11,10 +23,54 @@ class _LibraryPageState extends State<LibraryPage> {
   // State quản lý filter
   String _selectedFilter = "Playlist";
 
-  // State quản lý danh sách (sau này có thể fetch từ API)
-  List<String> playlists = List.generate(10, (i) => "Playlist ${i + 1}");
-  List<String> dsnghsi = List.generate(10, (i) => "Nghe si ${i + 1}");
-  List<String> dsalbum = List.generate(10, (i) => "Album ${i + 1}");
+// State quản lý danh sách (sau này có thể fetch từ API)
+// Playlist mẫu
+List<MusicItem> playlists = [
+  MusicItem(
+    title: "Nhạc trẻ hot nhất",
+    subtitle: "50 bài hát • V-Pop",
+    imageUrl: "https://i.scdn.co/image/ab67616d0000b2738f7f1d8c59f51e1d48b2e3f6",
+  ),
+  MusicItem(
+    title: "Lofi Chill",
+    subtitle: "35 bài hát • Relax",
+    imageUrl: "https://i.scdn.co/image/ab67706f00000002f3c1a9e67d9f5158b6f2c9e6",
+  ),
+  MusicItem(
+    title: "Workout Playlist",
+    subtitle: "45 bài hát • EDM",
+    imageUrl: "https://i.scdn.co/image/ab67616d0000b2737b9e2d1e17a3e7c4c7d3d09f",
+  ),
+];
+
+// Nghệ sĩ mẫu
+List<MusicItem> dsnghsi = [
+  MusicItem(
+    title: "Sơn Tùng M-TP",
+    subtitle: "Pop, V-Pop",
+    imageUrl: "assets/images/maxresdefault.jpg",
+  ),
+  MusicItem(
+    title: "Đen Vâu",
+    subtitle: "Rap, Hip-hop",
+    imageUrl: "assets/images/Son-Tung-MTP2.jpg",
+  ),
+];
+
+// Album mẫu
+List<MusicItem> dsalbum = [
+  MusicItem(
+    title: "Chúng Ta Của Hiện Tại",
+    subtitle: "Sơn Tùng M-TP • 2020",
+    imageUrl: "https://i.scdn.co/image/ab67616d0000b2735f68a9a5b123abcfa89342b8",
+  ),
+  MusicItem(
+    title: "99%",
+    subtitle: "Đức Phúc • 2022",
+    imageUrl: "https://i.scdn.co/image/ab67616d0000b273ddfba54a2f8d481cbb123a7c",
+  ),
+];
+
 
 
   void _onFilterSelected(String filter) {
@@ -25,7 +81,7 @@ class _LibraryPageState extends State<LibraryPage> {
 
   void _addPlaylist() {
     setState(() {
-      playlists.add("Playlist mới ${playlists.length + 1}");
+
     });
   }
 
@@ -82,7 +138,21 @@ class _LibraryPageState extends State<LibraryPage> {
   );
 }
 
-String _hienThiTheoDanhMuc(String _selectedFilter, int index){
+// ham tra ve so luong phan tu trong mang
+int _getItemCount(){
+  if(_selectedFilter == "Playlist") {
+    return playlists.length;
+  } else if (_selectedFilter == "Nghệ sĩ") {
+    return dsnghsi.length;
+  } else if (_selectedFilter == "Album") {
+    return dsalbum.length;
+  } else {
+    return 0;
+  }
+}
+
+// hien thi danh sach theo muc
+MusicItem _hienThiTheoDanhMuc(String _selectedFilter, int index){
   if(_selectedFilter == "Playlist"){
     return playlists[index];
   }else if(_selectedFilter == "Nghệ sĩ"){
@@ -90,10 +160,9 @@ String _hienThiTheoDanhMuc(String _selectedFilter, int index){
   }else if (_selectedFilter == "Album"){
     return dsalbum[index];
   }else{
-    return "khong co ds";
+    return MusicItem(imageUrl: "", subtitle: "", title: "khong co du lieu");
   }
 }
-
 
 
   @override
@@ -175,33 +244,47 @@ String _hienThiTheoDanhMuc(String _selectedFilter, int index){
             // Danh sách
             Expanded(
               child: ListView.builder(
-                itemCount: playlists.length,
+                itemCount: _getItemCount(),
                 itemBuilder: (context, index) {
+                  final item = _hienThiTheoDanhMuc(_selectedFilter, index);
                   return ListTile(
-                    leading: Container(
-                      width: 56,
-                      height: 56,
-                      color: Colors.grey[800],
-                      child: const Icon(Icons.music_note, color: Colors.white),
+                    leading: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.network(
+                        item.imageUrl,
+                        width: 56,
+                        height: 56,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            width: 56,
+                            height: 56,
+                            color: Colors.grey[800],
+                            child: const Icon(Icons.music_note, color: Colors.white),
+                          );
+                        },
+                      ),
                     ),
                     title: Text(
-                      _hienThiTheoDanhMuc(_selectedFilter, index),
+                      item.title,
                       style: const TextStyle(color: Colors.white),
                     ),
                     subtitle: Text(
-                      '$_selectedFilter • 20 bài hát',
+                      item.subtitle,
                       style: TextStyle(color: Colors.grey[600]),
                     ),
-                    onTap: (){
+                    onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => PlaylistDetailPage(),)
+                        MaterialPageRoute(
+                          builder: (context) => const PlaylistDetailPage(),
+                        ),
                       );
                     },
                   );
                 },
               ),
-            ),
+            )
           ],
         ),
       ),
@@ -209,7 +292,7 @@ String _hienThiTheoDanhMuc(String _selectedFilter, int index){
   }
 }
 
-
+// trang tim kiem khi bam vao kinh lup
 class SearchPagelib extends StatefulWidget {
   final String selectedFilter;
   const SearchPagelib({super.key, required this.selectedFilter});
