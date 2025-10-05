@@ -95,6 +95,7 @@ String _hienThiTheoDanhMuc(String _selectedFilter, int index){
 }
 
 
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -119,7 +120,13 @@ String _hienThiTheoDanhMuc(String _selectedFilter, int index){
                   children: [
                     IconButton(
                       icon: const Icon(Icons.search, color: Colors.white),
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(
+                          context, 
+                          MaterialPageRoute(
+                            builder: (context) => SearchPagelib(selectedFilter: _selectedFilter),)
+                        );
+                      },
                     ),
                     IconButton(
                       icon: const Icon(Icons.add, color: Colors.white),
@@ -201,6 +208,49 @@ String _hienThiTheoDanhMuc(String _selectedFilter, int index){
     );
   }
 }
+
+
+class SearchPagelib extends StatefulWidget {
+  final String selectedFilter;
+  const SearchPagelib({super.key, required this.selectedFilter});
+
+  @override
+  State<SearchPagelib> createState() => _SearchPagelibState();
+}
+
+class _SearchPagelibState extends State<SearchPagelib> {
+  String _searchText = "";
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: TextField(
+          autofocus: true,
+          style: const TextStyle(color: Colors.white),
+          decoration: InputDecoration(
+            hintText: "Tìm kiếm trong ${widget.selectedFilter}",
+            hintStyle: TextStyle(color: Colors.grey[500]),
+            border: InputBorder.none,
+          ),
+          onChanged: (value){
+            setState(() {
+              _searchText = value;
+            });
+          },
+        ),
+      ),
+      body: Center(
+        child: Text(
+          _searchText.isEmpty
+        ? "nhap de tim trong ${widget.selectedFilter}"
+        : "ket qua cho $_searchText",
+        style: const TextStyle(color: Colors.white, fontSize: 18),
+        ),
+      ),
+    );
+  }
+}
+
 
 class PlaylistDetailPage extends StatelessWidget {
   const PlaylistDetailPage({super.key});
