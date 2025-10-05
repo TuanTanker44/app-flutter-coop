@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
 
-class HomePage extends StatelessWidget {
-  const HomePage({Key? key}) : super(key: key);
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  List<String> playlists = List.generate(6, (index) => "Playlist ${index + 1}");
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +37,7 @@ class HomePage extends StatelessWidget {
                   crossAxisSpacing: 10,
                   mainAxisSpacing: 10,
                 ),
-                itemCount: 6,
+                itemCount: playlists.length,
                 itemBuilder: (context, index) {
                   return Container(
                     decoration: BoxDecoration(
@@ -46,10 +53,13 @@ class HomePage extends StatelessWidget {
                           child: const Icon(Icons.music_note, color: Colors.white),
                         ),
                         const SizedBox(width: 10),
-                        const Expanded(
+                        Expanded(
                           child: Text(
-                            'Playlist',
-                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                            playlists[index],
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),

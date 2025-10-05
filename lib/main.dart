@@ -18,7 +18,11 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: Colors.black,
         primaryColor: Colors.green,
       ),
-      home: const MainScreen(),
+      home: const SizedBox(
+          width: 390,
+          height: 810,
+          child: MainScreen()
+          ),
     );
   }
 }
