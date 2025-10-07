@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class PremiumPage extends StatelessWidget {
-  const PremiumPage({Key? key}) : super(key: key);
+  const PremiumPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -94,7 +94,7 @@ class PremiumPage extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 16.0),
       child: Row(
         children: [
-          Icon(icon, color: Colors.green, size: 28),
+          Icon(icon, color: Color(0xFF1ED760), size: 28),
           const SizedBox(width: 16),
           Text(
             text,
