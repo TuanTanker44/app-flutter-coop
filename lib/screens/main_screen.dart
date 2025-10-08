@@ -28,41 +28,39 @@ class _MainScreenState extends State<MainScreen> {
     return Scaffold(
       backgroundColor: Colors.black,
 
-      appBar: (_currentIndex != 3 && _currentIndex != 4)
-          ? AppBar(
-        backgroundColor: Colors.black,
-        elevation: 0,
-        leading: Builder(
-          builder: (context) {
-            return GestureDetector(
-              onTap: () {
-                Scaffold.of(context).openDrawer();
-              },
-              child: const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: CircleAvatar(
-                  radius: 18, // kích thước avatar
-                  backgroundImage: AssetImage('assets/images/avatar.jpg'),
-                ),
-              ),
-            );
-          },
-        ),
-        title: const Text(
-          "Spotify Clone",
-          style: TextStyle(color: Colors.white),
-        ),
-      )
-          : null,
       drawer: const Sidebar(),
 
-      body: BottomNavBar(
-        pages: _pages,
-        onPageChanged: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
+      body: Stack(
+        children: [
+          BottomNavBar(
+            pages: _pages,
+            onPageChanged: (index) {
+              setState(() {
+                _currentIndex = index;
+              });
+            },
+          ),
+
+          // 🟦 Avatar cố định thay cho AppBar
+          if (_currentIndex != 3 && _currentIndex != 4)
+            Positioned(
+              top: 20,
+              left: 16,
+              child: Builder(
+                builder: (context) {
+                  return GestureDetector(
+                    onTap: () {
+                      Scaffold.of(context).openDrawer();
+                    },
+                    child: const CircleAvatar(
+                      radius: 18,
+                      backgroundImage: AssetImage('assets/images/avatar.jpg'),
+                    ),
+                  );
+                },
+              ),
+            ),
+        ],
       ),
     );
   }

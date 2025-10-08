@@ -8,7 +8,7 @@ class MusicItem {
   MusicItem({
     required this.imageUrl,
     required this.subtitle,
-    required this.title
+    required this.title 
   });
 }
 
@@ -28,17 +28,17 @@ class _LibraryPageState extends State<LibraryPage> {
 List<MusicItem> playlists = [
   MusicItem(
     title: "Nhạc trẻ hot nhất",
-    subtitle: "50 bài hát • V-Pop",
-    imageUrl: "https://i.scdn.co/image/ab67616d0000b2738f7f1d8c59f51e1d48b2e3f6",
+    subtitle: "Danh sách phát • V-Pop",
+    imageUrl: ""
   ),
   MusicItem(
     title: "Lofi Chill",
-    subtitle: "35 bài hát • Relax",
+    subtitle: "Danh sách phát • Relax",
     imageUrl: "https://i.scdn.co/image/ab67706f00000002f3c1a9e67d9f5158b6f2c9e6",
   ),
   MusicItem(
     title: "Workout Playlist",
-    subtitle: "45 bài hát • EDM",
+    subtitle: "Danh sách phát • EDM",
     imageUrl: "https://i.scdn.co/image/ab67616d0000b2737b9e2d1e17a3e7c4c7d3d09f",
   ),
 ];
@@ -81,7 +81,51 @@ List<MusicItem> dsalbum = [
 
   void _addPlaylist() {
     setState(() {
+      showDialog(
+        context: context,
+        builder: (context) {
+          TextEditingController titleController = TextEditingController();
+          TextEditingController subtitleController = TextEditingController();
 
+          return AlertDialog(
+            backgroundColor: const Color(0xFF2C2C2C),
+            title: const Text("them play list", style: TextStyle(color: Colors.white),),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: titleController,
+                  ),
+                  TextField(
+                    controller: subtitleController,
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                child: const Text("Huy", style: TextStyle(color: Colors.redAccent)),
+                onPressed: () => Navigator.pop(context),
+              ),
+              TextButton(
+                child:  const Text("Them", style: TextStyle(color: Colors.greenAccent),),
+                onPressed: () {
+                  setState(() {
+                    playlists.add(
+                      MusicItem(
+                        title: titleController.text.trim(),
+                        imageUrl: "",
+                        subtitle: ""
+                      ));
+                  });
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          );
+        } 
+      );
     });
   }
 

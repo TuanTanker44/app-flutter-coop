@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "883450804613",
+    "project_id": "musicappflutter-52bd8",
+    "storage_bucket": "musicappflutter-52bd8.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:883450804613:android:0b28a651902b913008ecec",
+        "android_client_info": {
+          "package_name": "project.musicapp.music_app_flutter"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCTm8AD-Vu5LChw-wDi0xv-MQlGGrZndOg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
