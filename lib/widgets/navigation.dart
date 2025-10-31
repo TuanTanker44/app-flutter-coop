@@ -40,7 +40,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
             });
           },
           type: BottomNavigationBarType.fixed,
-          backgroundColor: Colors.black,
+          backgroundColor: Color(0xFF2C2C2C),
           selectedItemColor: Colors.white,
           unselectedItemColor: Colors.grey,
           selectedFontSize: 12,

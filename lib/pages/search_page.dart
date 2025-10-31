@@ -48,18 +48,22 @@ class _SearchPageState extends State<SearchPage> {
 
     return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Tìm kiếm',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
+            Container(
+              padding: EdgeInsets.only(left: 55, top: 10),
+              child: const Text(
+                'Tìm kiếm',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
+
             const SizedBox(height: 16),
 
             // Search input

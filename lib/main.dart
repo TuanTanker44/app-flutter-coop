@@ -1,22 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
-
+import 'package:music_app_flutter/pages/login_page.dart';
+import 'package:music_app_flutter/pages/register_page.dart';
 import 'screens/main_screen.dart';
+import 'core/supabase_client.dart';
+
+Map<String, dynamic>? currentUser;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Khởi tạo Firebase
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await SupabaseManager.init();
 
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
@@ -28,11 +33,19 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: Colors.black,
         primaryColor: Colors.green,
       ),
-      home: const SizedBox(
-          width: 390,
-          height: 810,
-          child: MainScreen()
-          ),
+      home: _buildHome(),
+      routes: {
+        '/login': (context) => const LoginPage(),
+        '/register': (context) => const RegisterPage(),
+        '/home': (context) => const MainScreen(),
+      },
     );
+  }
+  Widget _buildHome() {
+    if (currentUser == null) {
+      return const LoginPage();
+    } else {
+      return const MainScreen();
+    }
   }
 }
