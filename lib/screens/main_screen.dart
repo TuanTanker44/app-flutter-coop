@@ -5,6 +5,9 @@ import '../pages/home_page.dart';
 import '../pages/search_page.dart';
 import '../pages/library_page.dart';
 import '../pages/premium_page.dart';
+import '../main.dart';
+
+Map<String, dynamic>? currentUser;
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -23,8 +26,10 @@ class _MainScreenState extends State<MainScreen> {
     PremiumPage(),
   ];
 
+
   @override
   Widget build(BuildContext context) {
+    final userName = currentUser?['name'] ?? 'Người dùng';
     return Scaffold(
       backgroundColor: Colors.black,
 
@@ -53,7 +58,7 @@ class _MainScreenState extends State<MainScreen> {
                       Scaffold.of(context).openDrawer();
                     },
                     child: const CircleAvatar(
-                      radius: 18,
+                      radius: 22,
                       backgroundImage: AssetImage('assets/images/avatar.jpg'),
                     ),
                   );
