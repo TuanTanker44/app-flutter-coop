@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:palette_generator/palette_generator.dart';
+import '../pages/player_page.dart';
+
 
 class PlayerPage extends StatefulWidget {
   final String title;
   final String imageUrl;
   final String audioUrl;
+  final String author;
   final AudioPlayer? existingPlayer;
   final VoidCallback? onClose;
 
@@ -14,6 +17,7 @@ class PlayerPage extends StatefulWidget {
     required this.title,
     required this.imageUrl,
     required this.audioUrl,
+    required this.author,
     this.existingPlayer,
     this.onClose,
   });
@@ -66,14 +70,17 @@ class _PlayerPageState extends State<PlayerPage> {
           ? NetworkImage(widget.imageUrl)
           : AssetImage(widget.imageUrl) as ImageProvider;
 
-      final PaletteGenerator palette =
-          await PaletteGenerator.fromImageProvider(imageProvider);
+      final PaletteGenerator palette = await PaletteGenerator.fromImageProvider(
+        imageProvider,
+      );
 
       setState(() {
-        _darkColor = palette.darkVibrantColor?.color ??
+        _darkColor =
+            palette.darkVibrantColor?.color ??
             palette.dominantColor?.color ??
             Colors.blueGrey.shade900;
-        _lightColor = palette.lightVibrantColor?.color ??
+        _lightColor =
+            palette.lightVibrantColor?.color ??
             palette.mutedColor?.color ??
             Colors.blueGrey.shade200;
       });
@@ -123,19 +130,25 @@ class _PlayerPageState extends State<PlayerPage> {
             children: [
               // Ảnh bìa
               Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 20,
+                ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(20),
                   child: widget.imageUrl.startsWith("http")
-                      ? Image.network(widget.imageUrl,
+                      ? Image.network(
+                          widget.imageUrl,
                           width: double.infinity,
                           height: 280,
-                          fit: BoxFit.cover)
-                      : Image.asset(widget.imageUrl,
+                          fit: BoxFit.cover,
+                        )
+                      : Image.asset(
+                          widget.imageUrl,
                           width: double.infinity,
                           height: 280,
-                          fit: BoxFit.cover),
+                          fit: BoxFit.cover,
+                        ),
                 ),
               ),
 
@@ -151,9 +164,9 @@ class _PlayerPageState extends State<PlayerPage> {
                     ),
                   ),
                   const SizedBox(height: 6),
-                  const Text(
-                    "Phan Mạnh Quỳnh",
-                    style: TextStyle(color: Colors.white70, fontSize: 18),
+                  Text(
+                    widget.author,
+                    style: const TextStyle(color: Colors.white70, fontSize: 18),
                   ),
                 ],
               ),
@@ -164,9 +177,12 @@ class _PlayerPageState extends State<PlayerPage> {
                   Slider(
                     activeColor: Colors.white,
                     inactiveColor: Colors.white38,
-                    value: _position.inSeconds
-                        .toDouble()
-                        .clamp(0, _duration.inSeconds.toDouble() == 0 ? 1 : _duration.inSeconds.toDouble()),
+                    value: _position.inSeconds.toDouble().clamp(
+                      0,
+                      _duration.inSeconds.toDouble() == 0
+                          ? 1
+                          : _duration.inSeconds.toDouble(),
+                    ),
                     max: _duration.inSeconds.toDouble() == 0
                         ? 1
                         : _duration.inSeconds.toDouble(),
@@ -179,10 +195,14 @@ class _PlayerPageState extends State<PlayerPage> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(_formatDuration(_position),
-                            style: const TextStyle(color: Colors.white70)),
-                        Text(_formatDuration(_duration),
-                            style: const TextStyle(color: Colors.white70)),
+                        Text(
+                          _formatDuration(_position),
+                          style: const TextStyle(color: Colors.white70),
+                        ),
+                        Text(
+                          _formatDuration(_duration),
+                          style: const TextStyle(color: Colors.white70),
+                        ),
                       ],
                     ),
                   ),
@@ -201,8 +221,11 @@ class _PlayerPageState extends State<PlayerPage> {
                     ),
                     const SizedBox(width: 16),
                     IconButton(
-                      icon: const Icon(Icons.skip_previous,
-                          size: 40, color: Colors.white),
+                      icon: const Icon(
+                        Icons.skip_previous,
+                        size: 40,
+                        color: Colors.white,
+                      ),
                       onPressed: () {},
                     ),
                     const SizedBox(width: 16),
@@ -221,8 +244,11 @@ class _PlayerPageState extends State<PlayerPage> {
                     ),
                     const SizedBox(width: 16),
                     IconButton(
-                      icon: const Icon(Icons.skip_next,
-                          size: 40, color: Colors.white),
+                      icon: const Icon(
+                        Icons.skip_next,
+                        size: 40,
+                        color: Colors.white,
+                      ),
                       onPressed: () {},
                     ),
                     const SizedBox(width: 16),

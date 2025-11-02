@@ -8,12 +8,14 @@ class PlaylistViewPage extends StatelessWidget {
   final String playlistName;
   final String coverUrl;
   final List<Map<String, dynamic>> songs;
+  final void Function(Map<String, dynamic> song)? onSongSelected;
 
   const PlaylistViewPage({
     super.key,
     required this.playlistName,
     required this.coverUrl,
-    required this.songs,
+    required this.songs, 
+    this.onSongSelected,
   });
 
   @override
@@ -79,9 +81,9 @@ class PlaylistViewPage extends StatelessWidget {
                     duration: Duration(seconds: song['duration'] ?? 200),
                     coverUrl: song['cover_url'],
                     onPlay: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('🎵 Đang phát: ${song['title']}')),
-                      );
+                      if(onSongSelected != null){
+                        onSongSelected!(song);
+                      }
                     },
                     onFavorite: () {
                       ScaffoldMessenger.of(context).showSnackBar(
