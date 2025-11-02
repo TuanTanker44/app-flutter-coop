@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:music_app_flutter/pages/mini_player.dart';
 import '../widgets/navigation.dart';
 import '../widgets/sidebar.dart';
 import '../pages/home_page.dart';
@@ -8,8 +10,8 @@ import '../pages/library_page.dart';
 import '../pages/premium_page.dart';
 import '../pages/player_page.dart';
 import '../core/supabase_client.dart';
-import '../pages/mini_player.dart';
 
+Map<String, dynamic>? currentUser;
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -23,69 +25,34 @@ class _MainScreenState extends State<MainScreen> {
   final AudioPlayer _player = AudioPlayer();
   MusicItem? _currentSong;
   bool _isPlaying = false;
+  late List<Widget> _pages;
   bool isLoadingAvatar = true;
   String userName = "Người dùng";
   String avatarUrl = "assets/images/avatar.jpeg";
 
-  late List<Widget> _pages;
 
   @override
   void initState() {
     super.initState();
-    _pages = [
-      const HomePage(),
-      const SearchPage(),
-      LibraryPage(onSongSelected: _playSong), // 🟢 truyền callback phát nhạc
-      const PremiumPage(),
-    ];
 
-    // Lắng nghe thay đổi đăng nhập từ Supabase
+    // 🔹 Lắng nghe thay đổi đăng nhập của Supabase
     SupabaseManager.client.auth.onAuthStateChange.listen((event) {
       _loadUserData();
     });
+
+    // 🔹 Load thông tin người dùng
     _loadUserData();
+
+    // 🔹 Khởi tạo danh sách trang
+    _pages = [
+      const HomePage(),
+      const SearchPage(),
+      LibraryPage(onSongSelected: _playSong),
+      const PremiumPage(),
+    ];
   }
 
-  Future<void> _loadUserData() async {
-    if (!mounted) return;
-    final supabase = SupabaseManager.client;
-    final user = supabase.auth.currentUser;
-
-    if (user == null) return;
-
-    final response = await supabase
-        .from('users')
-        .select('username')
-        .eq('id', user.id)
-        .maybeSingle();
-
-    final bucket = supabase.storage.from('avatars');
-    final fileName = '${user.id}.jpeg';
-    String? publicUrl;
-
-    try {
-      final files = await bucket.list(path: '');
-      bool exists = files.any((f) => f.name == fileName);
-
-      if (exists) {
-        publicUrl = bucket.getPublicUrl(fileName);
-        publicUrl += "?v=${DateTime.now().millisecondsSinceEpoch}";
-      }
-    } catch (_) {}
-
-    if (mounted) {
-      if (publicUrl != null) {
-        PaintingBinding.instance.imageCache.clear();
-        PaintingBinding.instance.imageCache.clearLiveImages();
-      }
-      setState(() {
-        userName = response?['username'] ?? "Người dùng";
-        avatarUrl = publicUrl ?? "assets/images/avatar.jpeg";
-        isLoadingAvatar = false;
-      });
-    }
-  }
-
+  // 🔹 Phát bài hát
   void _playSong(MusicItem song) async {
     setState(() {
       _currentSong = song;
@@ -107,6 +74,7 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
 
+  // 🔹 Dừng / phát nhạc
   void _togglePlay() {
     if (_isPlaying) {
       _player.pause();
@@ -115,6 +83,7 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
 
+  // 🔹 Mở trang phát nhạc đầy đủ
   void _openPlayerPage() {
     if (_currentSong == null) return;
     Navigator.push(
@@ -124,6 +93,7 @@ class _MainScreenState extends State<MainScreen> {
           title: _currentSong!.title,
           imageUrl: _currentSong!.imageUrl,
           audioUrl: _currentSong!.audioUrl,
+          author: _currentSong!.author,
           existingPlayer: _player,
           onClose: () {
             setState(() {
@@ -133,6 +103,50 @@ class _MainScreenState extends State<MainScreen> {
         ),
       ),
     );
+  }
+
+  // 🔹 Load thông tin người dùng từ Supabase
+  Future<void> _loadUserData() async {
+    if (!mounted) return;
+
+    final supabase = SupabaseManager.client;
+    final user = supabase.auth.currentUser;
+
+    if (user != null) {
+      final response = await supabase
+          .from('users')
+          .select('username')
+          .eq('id', user.id)
+          .maybeSingle();
+
+      final bucket = supabase.storage.from('avatars');
+      final fileName = '${user.id}.jpeg';
+
+      String? publicUrl;
+
+      try {
+        final files = await bucket.list(path: '');
+        bool exists = files.any((f) => f.name == fileName);
+
+        if (exists) {
+          publicUrl = bucket.getPublicUrl(fileName);
+          publicUrl += "?v=${DateTime.now().millisecondsSinceEpoch}";
+        }
+      } catch (_) {}
+
+      if (mounted) {
+        if (publicUrl != null) {
+          PaintingBinding.instance.imageCache.clear();
+          PaintingBinding.instance.imageCache.clearLiveImages();
+        }
+
+        setState(() {
+          userName = response?['username'] ?? "Người dùng";
+          avatarUrl = publicUrl ?? "assets/images/avatar.jpeg";
+          isLoadingAvatar = false;
+        });
+      }
+    }
   }
 
   @override
@@ -155,8 +169,8 @@ class _MainScreenState extends State<MainScreen> {
             },
           ),
 
-          // 🧑‍🦱 Avatar mở Drawer
-          if (_currentIndex != 3)
+          // 🔹 Avatar mở Drawer
+          if (_currentIndex != 3 && _currentIndex != 4)
             Positioned(
               top: 20,
               left: 16,
@@ -192,7 +206,7 @@ class _MainScreenState extends State<MainScreen> {
               ),
             ),
 
-          // 🟩 Mini Player
+          // 🔹 Mini Player chung toàn app
           if (_currentSong != null)
             Positioned(
               left: 0,
