@@ -11,7 +11,10 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   List<dynamic> playlists = [];
-  bool isLoading = true;
+  bool isLoadingPlaylists = true;
+  List<dynamic> historySongs = [];
+  bool isLoadingHistory = true;
+
 
   bool isAllCategorySelected = true;
   bool isMusicCategorySelected = false;
@@ -23,6 +26,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     fetchPlaylists();
+    fetchListeningHistory();
   }
 
   Future<void> fetchPlaylists() async {
@@ -33,13 +37,52 @@ class _HomePageState extends State<HomePage> {
 
       setState(() {
         playlists = response;
-        isLoading = false;
+        isLoadingPlaylists = false;
       });
     } catch (e) {
       debugPrint('Lỗi tải playlists: $e');
       setState(() {
-        isLoading = false;
+        isLoadingPlaylists = false;
       });
+    }
+  }
+
+  Future<void> fetchListeningHistory() async {
+    try {
+      final supabase = SupabaseManager.client;
+      final user = supabase.auth.currentUser;
+
+      if (user == null) return;
+
+      // Lấy danh sách song_id có thứ tự thời gian mới nhất
+      final historyResponse = await supabase
+          .from('listening_history')
+          .select('song_id')
+          .eq('user_id', user.id)
+          .order('listened_at', ascending: false)
+          .limit(10);
+
+      if (historyResponse.isEmpty) {
+        setState(() => isLoadingHistory = false);
+        return;
+      }
+
+      final songIds = historyResponse.map((e) => e['song_id']).toList();
+
+      // Lấy thông tin bài hát từ bảng songs
+      final songs = await supabase
+          .from('songs')
+          .select('id, title, artist, duration, cover_url')
+          .inFilter('id', songIds);
+
+      setState(() {
+        historySongs = songs;
+        isLoadingHistory = false;
+      });
+
+    } catch (e) {
+      debugPrint("Lỗi tải lịch sử nghe: $e");
+      setState(() => isLoadingHistory = false);
     }
   }
 
@@ -137,7 +180,7 @@ class _HomePageState extends State<HomePage> {
                       ],
                     ),
 
-                    // const SizedBox(width: 10),
+                    const SizedBox(width: 10),
 
                     // ====== Podcasts =======
                     Row(
@@ -208,7 +251,7 @@ class _HomePageState extends State<HomePage> {
               const SizedBox(height: 15),
 
               // ==== PLAYLIST GRID ====
-              if (isLoading)
+              if (isLoadingPlaylists)
                 const Center(child: CircularProgressIndicator())
               else
                 GridView.builder(
@@ -329,6 +372,63 @@ class _HomePageState extends State<HomePage> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
+              const SizedBox(height: 15),
+
+              if (isLoadingHistory)
+                const Center(child: CircularProgressIndicator())
+              else if (historySongs.isEmpty)
+                const Text(
+                  "Chưa có lịch sử nghe",
+                  style: TextStyle(color: Colors.white70, fontSize: 14),
+                )
+              else
+                GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    childAspectRatio: 1,
+                    crossAxisSpacing: 10,
+                    mainAxisSpacing: 10,
+                  ),
+                  itemCount: historySongs.length,
+                  itemBuilder: (context, index) {
+                    final song = historySongs[index];
+                    final name = song['title'] ?? 'Untitled';
+                    final cover = song['cover_url'] ?? 'https://via.placeholder.com/150';
+
+                    return GestureDetector(
+                      onTap: () {
+                        // TODO → mở player
+                      },
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(4),
+                            child: Image.network(
+                              cover,
+                              width: double.infinity,
+                              height: 100,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            name,
+                            style: const TextStyle(color: Colors.white),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          Text(
+                            song['artist'] ?? "",
+                            style: const TextStyle(color: Colors.white70, fontSize: 12),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
             ],
           ),
         ),
