@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../core/supabase_client.dart';
 import './playlist_view_page.dart';
+import '../widgets/music_block.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -382,49 +383,30 @@ class _HomePageState extends State<HomePage> {
                   style: TextStyle(color: Colors.white70, fontSize: 14),
                 )
               else
-                GridView.builder(
+                ListView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    childAspectRatio: 1,
-                    crossAxisSpacing: 10,
-                    mainAxisSpacing: 10,
-                  ),
                   itemCount: historySongs.length,
                   itemBuilder: (context, index) {
                     final song = historySongs[index];
-                    final name = song['title'] ?? 'Untitled';
-                    final cover = song['cover_url'] ?? 'https://via.placeholder.com/150';
 
-                    return GestureDetector(
-                      onTap: () {
-                        // TODO → mở player
-                      },
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(4),
-                            child: Image.network(
-                              cover,
-                              width: double.infinity,
-                              height: 100,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            name,
-                            style: const TextStyle(color: Colors.white),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          Text(
-                            song['artist'] ?? "",
-                            style: const TextStyle(color: Colors.white70, fontSize: 12),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 12.0),
+                      child: MusicBlock(
+                        title: song['title'] ?? 'Untitled',
+                        artist: song['artist'] ?? 'Unknown Artist',
+                        coverUrl: song['cover_url'],
+                        duration: Duration(seconds: song['duration'] ?? 0),
+                        onPlay: () {
+                          // TODO: mở player
+                          debugPrint("Play: ${song['title']}");
+                        },
+                        onFavorite: () {
+                          debugPrint("Favorite: ${song['title']}");
+                        },
+                        onMore: () {
+                          debugPrint("More options for: ${song['title']}");
+                        },
                       ),
                     );
                   },
@@ -433,6 +415,14 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       ),
+    );
+  }
+  Widget _placeholderCover() {
+    return Container(
+      width: 60,
+      height: 60,
+      color: Colors.white12,
+      child: const Icon(Icons.music_note, color: Colors.white54),
     );
   }
 }
