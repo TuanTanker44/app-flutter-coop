@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:palette_generator/palette_generator.dart';
+import '../pages/player_page.dart';
+
 
 class PlayerPage extends StatefulWidget {
   final String title;
   final String imageUrl;
   final String audioUrl;
+  final String author;
   final AudioPlayer? existingPlayer;
   final VoidCallback? onClose;
 
@@ -14,6 +17,7 @@ class PlayerPage extends StatefulWidget {
     required this.title,
     required this.imageUrl,
     required this.audioUrl,
+    required this.author,
     this.existingPlayer,
     this.onClose,
   });
@@ -151,9 +155,9 @@ class _PlayerPageState extends State<PlayerPage> {
                     ),
                   ),
                   const SizedBox(height: 6),
-                  const Text(
-                    "Phan Mạnh Quỳnh",
-                    style: TextStyle(color: Colors.white70, fontSize: 18),
+                  Text(
+                    widget.author,
+                    style: const TextStyle(color: Colors.white70, fontSize: 18),
                   ),
                 ],
               ),

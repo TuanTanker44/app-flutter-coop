@@ -92,6 +92,7 @@ class _MainScreenState extends State<MainScreen> {
           title: _currentSong!.title,
           imageUrl: _currentSong!.imageUrl,
           audioUrl: _currentSong!.audioUrl,
+          author: _currentSong!.author,
           existingPlayer: _player,
           onClose: () {
             setState(() {
