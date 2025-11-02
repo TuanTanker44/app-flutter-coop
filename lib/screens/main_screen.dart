@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:music_app_flutter/pages/mini_player.dart';
 import '../widgets/navigation.dart';
 import '../widgets/sidebar.dart';
-import '../widgets/mini_player.dart';
 import '../pages/home_page.dart';
 import '../pages/search_page.dart';
 import '../pages/library_page.dart';
 import '../pages/premium_page.dart';
 import '../pages/player_page.dart';
 import '../core/supabase_client.dart';
+import '../pages/mini_player.dart';
+
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
