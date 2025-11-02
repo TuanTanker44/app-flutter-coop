@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:music_app_flutter/pages/player_page.dart';
 
 class MusicItem {
   final String title;
@@ -19,8 +18,7 @@ class MusicItem {
 }
 
 class LibraryPage extends StatefulWidget {
-  final Function(MusicItem)? onSongSelected; // thêm callback
-  const LibraryPage({super.key, this.onSongSelected});
+  const LibraryPage({super.key});
 
   @override
   State<LibraryPage> createState() => _LibraryPageState();
@@ -348,15 +346,159 @@ MusicItem _hienThiTheoDanhMuc(String _selectedFilter, int index){
                       item.subtitle,
                       style: TextStyle(color: Colors.grey[600]),
                     ),
-                    onTap: () {
-                        if (item.audioUrl.isNotEmpty) {
-                        widget.onSongSelected?.call(item); // 🔁 Gửi bài hát về MainScreen
+                    onTap: () async {
+                      setState(() {
+                        _currentSong = item;
+                        _player ??= AudioPlayer();
+                      });
+                      try {
+                        await _player!.setAsset(item.audioUrl);
+                        await _player!.play();
+                        
+                      _player!.playerStateStream.listen((state) {
+                        setState(() {
+                          _isPlaying = state.playing;
+                        });
+                      });
+                      } catch (e) {
+                        print('loi phat nhac: $e');
                       }
                     },
                   );
                 },
               ),
-            ),   
+            ),
+            if (_currentSong != null)
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => PlayerPage(
+                      title: _currentSong!.title,
+                      imageUrl: _currentSong!.imageUrl,
+                      audioUrl: _currentSong!.audioUrl,
+                      existingPlayer: _player,
+                      onClose: () {
+                        setState(() {
+                          _currentSong = null; // Ẩn mini player khi bấm X
+                        });
+                      },
+                    ),
+                  ),
+                );
+              },
+              child: Container(
+                height: 70,
+                margin: const EdgeInsets.only(bottom: 8, left: 16, right: 16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF2C2C2C),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    const SizedBox(width: 8),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: _currentSong!.imageUrl.startsWith("http")
+                          ? Image.network(
+                              _currentSong!.imageUrl,
+                              width: 56,
+                              height: 56,
+                              fit: BoxFit.cover,
+                            )
+                          : Image.asset(
+                              _currentSong!.imageUrl,
+                              width: 56,
+                              height: 56,
+                              fit: BoxFit.cover,
+                            ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        _currentSong!.title,
+                        style: const TextStyle(color: Colors.white, fontSize: 16),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.skip_previous, color: Colors.white),
+                      onPressed: () async{
+                        // lay ds hien tai (playlist, dsngsi, ds album)
+                        List<MusicItem> currentList = [];
+                        if(_selectedFilter == "Playlist"){
+                          currentList = playlists;
+                        }else if(_selectedFilter == "Nghệ sĩ"){
+                          currentList = dsnghsi;
+                        }else if(_selectedFilter == "Album"){
+                          currentList = dsalbum;
+                        }
+                        // tim vi tri hien tai va chuyen bai
+                        final currentIndex = currentList.indexOf(_currentSong!);
+                        if (currentIndex != -1 && currentIndex < currentList.length) {
+                        final preSong = currentList[currentIndex - 1];
+                        setState(() {
+                          _currentSong = preSong;
+                        });
+                        await _player!.setAsset(preSong.audioUrl);
+                        await _player!.play();
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('K co bai truoc do')),
+                        );
+                      }
+                    },
+                    ),
+                    IconButton(
+                      icon: Icon(
+                        _isPlaying ? Icons.pause : Icons.play_arrow,
+                        color: Colors.white,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          if (_isPlaying) {
+                            _player!.pause();
+                          } else {
+                            _player!.play();
+                          }
+                        });
+                      },
+                    ),
+
+                    IconButton(
+                      icon: const Icon(Icons.skip_next, color: Colors.white),
+                      onPressed: () async{
+                        // lay ds hien tai (playlist, dsngsi, ds album)
+                        List<MusicItem> currentList = [];
+                        if(_selectedFilter == "Playlist"){
+                          currentList = playlists;
+                        }else if(_selectedFilter == "Nghệ sĩ"){
+                          currentList = dsnghsi;
+                        }else if(_selectedFilter == "Album"){
+                          currentList = dsalbum;
+                        }
+                        // tim vi tri hien tai va chuyen bai
+                        final currentIndex = currentList.indexOf(_currentSong!);
+                        if (currentIndex != -1 && currentIndex < currentList.length - 1) {
+                        final nextSong = currentList[currentIndex + 1];
+                        setState(() {
+                          _currentSong = nextSong;
+                        });
+                        await _player!.setAsset(nextSong.audioUrl);
+                        await _player!.play();
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Không có bài tiếp theo')),
+                        );
+                      }
+                    },
+                    ),
+                    const SizedBox(width: 8),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       ),
@@ -409,3 +551,128 @@ class _SearchPagelibState extends State<SearchPagelib> {
 }
 
 
+
+class PlayerPage extends StatefulWidget {
+  final String title;
+  final String imageUrl;
+  final String audioUrl;
+  final AudioPlayer? existingPlayer;
+  final VoidCallback? onClose; // callback khi bấm nút X
+
+  const PlayerPage({
+    super.key,
+    required this.title,
+    required this.imageUrl,
+    required this.audioUrl,
+    this.existingPlayer,
+    this.onClose,
+  });
+
+  @override
+  State<PlayerPage> createState() => _PlayerPageState();
+}
+
+class _PlayerPageState extends State<PlayerPage> {
+  late AudioPlayer _player;
+  Duration _duration = Duration.zero;
+  Duration _position = Duration.zero;
+  bool _isPlaying = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _player = widget.existingPlayer ?? AudioPlayer();
+    if (widget.existingPlayer == null) _init();
+
+    _player.durationStream.listen((d) {
+      if (d != null) setState(() => _duration = d);
+    });
+    _player.positionStream.listen((p) {
+      setState(() => _position = p);
+    });
+    _player.playerStateStream.listen((state) {
+      setState(() => _isPlaying = state.playing);
+    });
+  }
+
+  Future<void> _init() async {
+    try {
+      await _player.setAsset(widget.audioUrl);
+    } catch (e) {
+      print("Lỗi khi phát nhạc: $e");
+    }
+  }
+
+  @override
+  void dispose() {
+    if (widget.existingPlayer == null) _player.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        title: Text(widget.title),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.close),
+            onPressed: () {
+              widget.onClose?.call(); // báo cho LibraryPage ẩn mini player
+              Navigator.pop(context);
+            },
+          ),
+        ],
+      ),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: widget.imageUrl.startsWith("http")
+                ? Image.network(widget.imageUrl, width: 250, height: 250, fit: BoxFit.cover)
+                : Image.asset(widget.imageUrl, width: 250, height: 250, fit: BoxFit.cover),
+          ),
+          const SizedBox(height: 30),
+          Slider(
+            activeColor: Colors.blueAccent,
+            inactiveColor: Colors.grey,
+            value: _position.inSeconds.toDouble(),
+            max: _duration.inSeconds.toDouble() == 0 ? 1 : _duration.inSeconds.toDouble(),
+            onChanged: (value) {
+              _player.seek(Duration(seconds: value.toInt()));
+            },
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(_formatDuration(_position), style: const TextStyle(color: Colors.white)),
+                Text(_formatDuration(_duration), style: const TextStyle(color: Colors.white)),
+              ],
+            ),
+          ),
+          const SizedBox(height: 30),
+          IconButton(
+            iconSize: 80,
+            color: Colors.white,
+            icon: Icon(_isPlaying ? Icons.pause_circle : Icons.play_circle),
+            onPressed: () {
+              _isPlaying ? _player.pause() : _player.play();
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatDuration(Duration d) {
+    String twoDigits(int n) => n.toString().padLeft(2, '0');
+    final minutes = twoDigits(d.inMinutes.remainder(60));
+    final seconds = twoDigits(d.inSeconds.remainder(60));
+    return "$minutes:$seconds";
+  }
+}

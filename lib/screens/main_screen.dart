@@ -8,7 +8,6 @@ import '../pages/home_page.dart';
 import '../pages/search_page.dart';
 import '../pages/library_page.dart';
 import '../pages/premium_page.dart';
-import '../pages/player_page.dart';
 import '../core/supabase_client.dart';
 
 Map<String, dynamic>? currentUser;
@@ -160,6 +159,7 @@ class _MainScreenState extends State<MainScreen> {
     return Scaffold(
       backgroundColor: Colors.black,
       drawer: const Sidebar(),
+
       body: Stack(
         children: [
           BottomNavBar(
