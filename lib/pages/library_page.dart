@@ -239,12 +239,15 @@ MusicItem _hienThiTheoDanhMuc(String _selectedFilter, int index){
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Thư viện',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
+                Container(
+                  padding: EdgeInsets.only(left: 55, top: 10),
+                  child: const Text(
+                    'Thư Viện',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 Row(
