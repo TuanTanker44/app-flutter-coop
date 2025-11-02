@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../pages/player_page.dart';
 
 const Color kPrimaryColor = Color(0xFF19B350);
 const Color kBackgroundColor = Colors.black;
@@ -7,6 +8,7 @@ class MusicBlock extends StatefulWidget {
   final String title;
   final String artist;
   final String? coverUrl;
+  final String? audioUrl;
   final Duration duration;
   final VoidCallback? onPlay;
   final VoidCallback? onFavorite;
@@ -17,6 +19,7 @@ class MusicBlock extends StatefulWidget {
     required this.title,
     required this.artist,
     this.coverUrl,
+    this.audioUrl,
     required this.duration,
     this.onPlay,
     this.onFavorite,
@@ -65,7 +68,19 @@ class _MusicBlockState extends State<MusicBlock> {
           // Thông tin bài hát
           Expanded(
             child: GestureDetector(
-              onTap: widget.onPlay,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => PlayerPage(
+                      title: widget.title,
+                      imageUrl: widget.coverUrl ?? "",
+                      audioUrl: widget.audioUrl ?? "",
+                      author: widget.artist,
+                    ),
+                  ),
+                );
+              },
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
