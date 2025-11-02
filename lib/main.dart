@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:music_app_flutter/pages/setting_page.dart';
 import '../core/supabase_client.dart';
 import 'screens/main_screen.dart';
 import '../pages/login_page.dart';
 import '../pages/register_page.dart';
 import '../screens/profile_screen.dart';
 import '../pages/recent_page.dart';
+
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -48,6 +50,7 @@ class MyApp extends StatelessWidget {
           }),
         '/profile': (context) => const ProfileScreen(),
         '/recent': (context) => const RecentPage(),
+        '/settings': (context) => const SettingsPage()
       },
 
       // ✅ Trang khởi động tuỳ theo trạng thái đăng nhập

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'premium_plans_page.dart';
 
 class PremiumPage extends StatelessWidget {
   const PremiumPage({super.key});
@@ -25,7 +26,7 @@ class PremiumPage extends StatelessWidget {
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [Colors.purple[700]!, Colors.blue[700]!],
+                    colors: [Colors.purple, Colors.blue],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -34,7 +35,8 @@ class PremiumPage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(Icons.workspace_premium, color: Colors.white, size: 40),
+                    const Icon(Icons.workspace_premium,
+                        color: Colors.white, size: 40),
                     const SizedBox(height: 16),
                     const Text(
                       'Nâng cấp lên Premium',
@@ -51,11 +53,19 @@ class PremiumPage extends StatelessWidget {
                     ),
                     const SizedBox(height: 20),
                     ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const PremiumPlansPage(),
+                          ),
+                        );
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
                         foregroundColor: Colors.black,
-                        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 32, vertical: 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(24),
                         ),
@@ -89,12 +99,12 @@ class PremiumPage extends StatelessWidget {
     );
   }
 
-  Widget _buildBenefitItem(IconData icon, String text) {
+  static Widget _buildBenefitItem(IconData icon, String text) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
       child: Row(
         children: [
-          Icon(icon, color: Color(0xFF1ED760), size: 28),
+          Icon(icon, color: const Color(0xFF1ED760), size: 28),
           const SizedBox(width: 16),
           Text(
             text,

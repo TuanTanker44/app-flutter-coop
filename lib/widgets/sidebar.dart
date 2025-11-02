@@ -181,6 +181,7 @@ class _SidebarState extends State<Sidebar> {
                         style: TextStyle(color: Colors.white)),
                     onTap: () {
                       Navigator.pop(context);
+                      Navigator.pushNamed(context, '/settings');
                       // TODO: xử lý cài đặt
                     },
                   ),
