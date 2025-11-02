@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:music_app_flutter/pages/mini_player.dart';
 import '../widgets/navigation.dart';
@@ -13,7 +14,6 @@ import '../core/supabase_client.dart';
 
 Map<String, dynamic>? currentUser;
 
-
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
 
@@ -27,7 +27,6 @@ class _MainScreenState extends State<MainScreen> {
   MusicItem? _currentSong;
   bool _isPlaying = false;
   late List<Widget> _pages;
-  late int _currentIndex = 0;
   bool isLoadingAvatar = true;
 
   String userName = "Người dùng";
@@ -36,14 +35,25 @@ class _MainScreenState extends State<MainScreen> {
   @override
   void initState() {
     super.initState();
+
+    // 🔹 Lắng nghe thay đổi đăng nhập của Supabase
+    SupabaseManager.client.auth.onAuthStateChange.listen((event) {
+      _loadUserData();
+    });
+
+    // 🔹 Load thông tin người dùng
+    _loadUserData();
+
+    // 🔹 Khởi tạo danh sách trang
     _pages = [
       const HomePage(),
       const SearchPage(),
-      LibraryPage(onSongSelected: _playSong), // 🟢 gọi callback
+      LibraryPage(onSongSelected: _playSong),
       const PremiumPage(),
     ];
   }
 
+  // 🔹 Phát bài hát
   void _playSong(MusicItem song) async {
     setState(() {
       _currentSong = song;
@@ -63,16 +73,16 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
 
+  // 🔹 Dừng / phát nhạc
   void _togglePlay() {
-    setState(() {
-      if (_isPlaying) {
-        _player.pause();
-      } else {
-        _player.play();
-      }
-    });
+    if (_isPlaying) {
+      _player.pause();
+    } else {
+      _player.play();
+    }
   }
 
+  // 🔹 Mở trang phát nhạc đầy đủ
   void _openPlayerPage() {
     if (_currentSong == null) return;
     Navigator.push(
@@ -93,20 +103,7 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  @override
-  void dispose() {
-    _player.dispose();
-    super.dispose();
-  @override
-  void initState() {
-    super.initState();
-    SupabaseManager.client.auth.onAuthStateChange.listen((event) {
-      _loadUserData();
-    });
-    _loadUserData();
-  }
-
-
+  // 🔹 Load thông tin người dùng từ Supabase
   Future<void> _loadUserData() async {
     if (!mounted) return;
 
@@ -114,7 +111,6 @@ class _MainScreenState extends State<MainScreen> {
     final user = supabase.auth.currentUser;
 
     if (user != null) {
-      // Lấy tên user từ bảng users
       final response = await supabase
           .from('users')
           .select('username')
@@ -132,18 +128,16 @@ class _MainScreenState extends State<MainScreen> {
 
         if (exists) {
           publicUrl = bucket.getPublicUrl(fileName);
-
-          // ✅ Cache busting để load avatar mới nhất
           publicUrl += "?v=${DateTime.now().millisecondsSinceEpoch}";
         }
       } catch (_) {}
 
       if (mounted) {
         if (publicUrl != null) {
-          // Bắt Flutter xoá cache cho URL cũ
           PaintingBinding.instance.imageCache.clear();
           PaintingBinding.instance.imageCache.clearLiveImages();
         }
+
         setState(() {
           userName = response?['username'] ?? "Người dùng";
           avatarUrl = publicUrl ?? "assets/images/avatar.jpeg";
@@ -151,6 +145,12 @@ class _MainScreenState extends State<MainScreen> {
         });
       }
     }
+  }
+
+  @override
+  void dispose() {
+    _player.dispose();
+    super.dispose();
   }
 
   @override
@@ -167,7 +167,7 @@ class _MainScreenState extends State<MainScreen> {
             },
           ),
 
-          // Avatar mở Drawer
+          // 🔹 Avatar mở Drawer
           if (_currentIndex != 3 && _currentIndex != 4)
             Positioned(
               top: 20,
@@ -181,31 +181,30 @@ class _MainScreenState extends State<MainScreen> {
                     child: ClipOval(
                       child: isLoadingAvatar
                           ? Image.asset(
-                        "assets/images/avatar.jpeg",
-                        width: 44,
-                        height: 44,
-                        fit: BoxFit.cover,
-                      )
+                              "assets/images/avatar.jpeg",
+                              width: 44,
+                              height: 44,
+                              fit: BoxFit.cover,
+                            )
                           : Image.network(
-                        avatarUrl,
-                        width: 44,
-                        height: 44,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Image.asset(
-                          "assets/images/avatar.jpeg",
-                          width: 44,
-                          height: 44,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
+                              avatarUrl,
+                              width: 44,
+                              height: 44,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) => Image.asset(
+                                "assets/images/avatar.jpeg",
+                                width: 44,
+                                height: 44,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
                     ),
                   ),
-
                 ),
               ),
             ),
 
-          // 🟩 Mini Player chung toàn app
+          // 🔹 Mini Player chung toàn app
           if (_currentSong != null)
             Positioned(
               left: 0,
