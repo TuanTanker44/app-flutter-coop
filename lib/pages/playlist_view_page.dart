@@ -14,7 +14,7 @@ class PlaylistViewPage extends StatelessWidget {
     super.key,
     required this.playlistName,
     required this.coverUrl,
-    required this.songs, 
+    required this.songs,
     this.onSongSelected,
   });
 
@@ -73,59 +73,28 @@ class PlaylistViewPage extends StatelessWidget {
               itemCount: songs.length,
               itemBuilder: (context, index) {
                 final song = songs[index];
+
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 8.0),
                   child: MusicBlock(
+                    songId: song['id'],
                     title: song['title'] ?? 'Unknown',
                     artist: song['artist'] ?? 'Unknown Artist',
-                    duration: Duration(seconds: song['duration'] ?? 200),
                     coverUrl: song['cover_url'],
-                    onPlay: () {
-                      if(onSongSelected != null){
-                        onSongSelected!(song);
-                      }
-                    },
+                    audioUrl: song['audio_url'], // nếu có audio_url trong DB
+                    duration: Duration(seconds: song['duration'] ?? 200),
                     onFavorite: () {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('❤️ Đã thêm vào yêu thích: ${song['title']}')),
                       );
                     },
                     onMore: () {
-                      showModalBottomSheet(
-                        context: context,
-                        backgroundColor: Colors.black87,
-                        builder: (context) => _buildSongOptions(context, song),
-                      );
+                      // Có thể hiển thị popup tuỳ chọn khác ở đây
                     },
                   ),
                 );
               },
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSongOptions(BuildContext context, Map<String, dynamic> song) {
-    return SafeArea(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ListTile(
-            leading: const Icon(Icons.play_arrow, color: Colors.white),
-            title: const Text('Phát bài hát', style: TextStyle(color: Colors.white)),
-            onTap: () => Navigator.pop(context),
-          ),
-          ListTile(
-            leading: const Icon(Icons.favorite_border, color: Colors.white),
-            title: const Text('Thêm vào yêu thích', style: TextStyle(color: Colors.white)),
-            onTap: () => Navigator.pop(context),
-          ),
-          ListTile(
-            leading: const Icon(Icons.playlist_add, color: Colors.white),
-            title: const Text('Thêm vào playlist khác', style: TextStyle(color: Colors.white)),
-            onTap: () => Navigator.pop(context),
           ),
         ],
       ),
