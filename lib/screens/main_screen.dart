@@ -170,7 +170,7 @@ class _MainScreenState extends State<MainScreen> {
           ),
 
           // 🔹 Avatar mở Drawer
-          if (_currentIndex != 3 && _currentIndex != 4)
+          if (_currentIndex != 0 && _currentIndex != 3 && _currentIndex != 4)
             Positioned(
               top: 20,
               left: 16,

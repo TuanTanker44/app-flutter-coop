@@ -15,6 +15,9 @@ class _HomePageState extends State<HomePage> {
   bool isLoadingPlaylists = true;
   List<dynamic> historySongs = [];
   bool isLoadingHistory = true;
+  bool isLoadingAvatar = true;
+  String userName = "Người dùng";
+  String avatarUrl = "assets/images/avatar.jpeg";
 
 
   bool isAllCategorySelected = true;
@@ -33,8 +36,7 @@ class _HomePageState extends State<HomePage> {
   Future<void> fetchPlaylists() async {
     try {
       final supabase = SupabaseManager.client;
-      final response = await supabase.from('playlists').select().limit(8);
-      print(response);
+      final response = await supabase.from('playlists').select().neq('name', 'Liked Songs').limit(8);
 
       setState(() {
         playlists = response;
@@ -52,7 +54,7 @@ class _HomePageState extends State<HomePage> {
     try {
       final supabase = SupabaseManager.client;
       final user = supabase.auth.currentUser;
-
+      print("User: $user");
       if (user == null) return;
 
       // Lấy danh sách song_id có thứ tự thời gian mới nhất
@@ -98,9 +100,37 @@ class _HomePageState extends State<HomePage> {
             children: [
               // ==== DANH MỤC NÚT =====
               Container(
-                padding: const EdgeInsets.only(left: 55),
                 child: Row(
                   children: [
+                    GestureDetector(
+                    onTap: () => Scaffold.of(context).openDrawer(),
+                    child: CircleAvatar(
+                      radius: 22,
+                      backgroundColor: Colors.grey.shade900,
+                      child: ClipOval(
+                        child: isLoadingAvatar
+                            ? Image.asset(
+                          "assets/images/avatar.jpeg",
+                          width: 44,
+                          height: 44,
+                          fit: BoxFit.cover,
+                        )
+                            : Image.network(
+                          avatarUrl,
+                          width: 44,
+                          height: 44,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Image.asset(
+                            "assets/images/avatar.jpeg",
+                            width: 44,
+                            height: 44,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                    SizedBox(width: 10),
                     // ====== Tất cả =======
                     TextButton(
                       style: ButtonStyle(
@@ -268,7 +298,7 @@ class _HomePageState extends State<HomePage> {
                   itemBuilder: (context, index) {
                     final item = playlists[index];
                     final name = item['name'] ?? 'Không tên';
-                    final imageUrl = item['cover_url'] ?? 'https://via.placeholder.com/150x150.png?text=Playlist';
+                    final imageUrl = item['cover_url'] ?? 'https://thubcoiluebblsmmbsjw.supabase.co/storage/v1/object/public/covers/playlists/playlist.jpeg';
 
                     return GestureDetector(
                       onTap: () async {
@@ -393,6 +423,7 @@ class _HomePageState extends State<HomePage> {
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 12.0),
                       child: MusicBlock(
+                        songId: song['id'],
                         title: song['title'] ?? 'Untitled',
                         artist: song['artist'] ?? 'Unknown Artist',
                         coverUrl: song['cover_url'],

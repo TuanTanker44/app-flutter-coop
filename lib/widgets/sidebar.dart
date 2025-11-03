@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../core/supabase_client.dart';
+import '../pages/feed_page.dart';
 
 class Sidebar extends StatefulWidget {
   const Sidebar({super.key});
@@ -39,47 +40,6 @@ class _SidebarState extends State<Sidebar> {
       });
     }
   }
-
-  void _showCreateDialog(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: const Color(0xFF282828),
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.playlist_add, color: Colors.white),
-              title: const Text(
-                'Tạo playlist',
-                style: TextStyle(color: Colors.white, fontSize: 16),
-              ),
-              onTap: () {
-                Navigator.pop(context);
-                // TODO: Điều hướng sang Create Playlist Page
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.folder_outlined, color: Colors.white),
-              title: const Text(
-                'Tạo thư mục playlist',
-                style: TextStyle(color: Colors.white, fontSize: 16),
-              ),
-              onTap: () {
-                Navigator.pop(context);
-                // TODO: Xử lý tạo thư mục playlist
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
 
   @override
   Widget build(BuildContext context) {
@@ -160,10 +120,13 @@ class _SidebarState extends State<Sidebar> {
                     title: const Text("Nội dung mới",
                         style: TextStyle(color: Colors.white)),
                     onTap: () {
-                      Navigator.pop(context);
-                      Future.delayed(const Duration(milliseconds: 150), () {
-                        _showCreateDialog(context);
-                      });
+                      Navigator.pop(context); // đóng Drawer trước
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => FeedPage(),
+                        ),
+                      );
                     },
                   ),
                   ListTile(
